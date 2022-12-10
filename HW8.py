@@ -32,13 +32,12 @@ def barchart_restaurant_categories(db_filename):
     restaurant categories and the values should be the number of restaurants in each category. The function should
     also create a bar chart with restaurant categories and the counts of each category.
     """
-    pass
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_filename)
     cur = conn.cursor()
-    cur.execute("SELECT categories.category, COUNT(*) FROM restaurants JOIN categories ON restaurants.category_id = categories.id GROUP BY Category")
+    cur.execute("SELECT categories.category, COUNT(*) FROM restaurants JOIN categories ON restaurants.category_id = categories.id GROUP BY Category ORDER BY COUNT(*) ASC")
     count = cur.fetchall()
-
+    conn.commit()
     dict = {}
     for x in count:
         dict[x[0]] = x[1]
@@ -50,7 +49,8 @@ def barchart_restaurant_categories(db_filename):
     plt.ylabel("Categories")
     plt.title("Types of Restaurants on South University Ave")
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    plt.savefig("bar_chart.png")
 
     return dict
 
