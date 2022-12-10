@@ -63,6 +63,31 @@ def highest_rated_category(db_filename):#Do this through DB as well
     and their ratings along the x-axis in descending order (by rating).
     """
     
+    file_path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(file_path+'/'+db_filename)
+    cur = conn.cursor()
+    
+    cur.execute("SELECT categories.category, AVG(restaurants.rating) FROM restaurants JOIN categories ON restaurants.category_id = categories.id GROUP BY Category ORDER BY AVG(restaurants.rating) DESC")
+    
+    ratings = cur.fetchall()
+    conn.commit()
+    highest_rated = ratings[0]
+    dict = {}
+    for x in ratings:
+        dict[x[0]] = x[1]
+
+    categories = list(dict.keys())
+    ratings = list(dict.values())
+
+    plt.barh(categories, ratings)
+    plt.xlabel("Average Rating")
+    plt.ylabel("Categories")
+    plt.title("Average Ratings of Restaurant Categories")
+    plt.tight_layout()
+    plt.yticks(range(len(categories)), categories[::-1])
+    plt.savefig("bar_chart_ratings.png")
+
+    return (highest_rated[0], highest_rated[1])
 
 #Try calling your functions here
 def main():
@@ -106,10 +131,10 @@ class TestHW8(unittest.TestCase):
         self.assertEqual(cat_data, self.cat_dict)
         self.assertEqual(len(cat_data), 14)
 
-    # def test_highest_rated_category(self):
-    #     best_category = highest_rated_category('South_U_Restaurants.db')
-    #     self.assertIsInstance(best_category, tuple)
-    #     self.assertEqual(best_category, self.best_category)
+    def test_highest_rated_category(self):
+        best_category = highest_rated_category('South_U_Restaurants.db')
+        self.assertIsInstance(best_category, tuple)
+        self.assertEqual(best_category, self.best_category)
 
 if __name__ == '__main__':
     main()
